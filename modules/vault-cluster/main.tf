@@ -76,11 +76,15 @@ resource "google_compute_instance_template" "vault_public" {
 
   # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
   service_account {
-    scopes = [
-      "https://www.googleapis.com/auth/userinfo.email",
-      "https://www.googleapis.com/auth/compute.readonly",
-      "https://www.googleapis.com/auth/devstorage.read_write"
-    ]
+    email  = "${var.service_account_email}"
+    scopes = ["${concat(
+      list(
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/compute.readonly",
+        "https://www.googleapis.com/auth/devstorage.read_write"
+      ),
+      var.service_account_scopes
+    )}"]
   }
 
   # Per Terraform Docs (https://www.terraform.io/docs/providers/google/r/compute_instance_template.html#using-with-instance-group-manager),
@@ -126,11 +130,15 @@ resource "google_compute_instance_template" "vault_private" {
 
   # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
   service_account {
-    scopes = [
-      "https://www.googleapis.com/auth/userinfo.email",
-      "https://www.googleapis.com/auth/compute.readonly",
-      "https://www.googleapis.com/auth/devstorage.read_write"
-    ]
+    email  = "${var.service_account_email}"
+    scopes = ["${concat(
+      list(
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/compute.readonly",
+        "https://www.googleapis.com/auth/devstorage.read_write"
+      ),
+      var.service_account_scopes
+    )}"]
   }
 
   # Per Terraform Docs (https://www.terraform.io/docs/providers/google/r/compute_instance_template.html#using-with-instance-group-manager),
@@ -247,4 +255,3 @@ data "template_file" "compute_instance_template_self_link" {
   # - Take the first element of list-of-1-value
   template = "${element(concat(google_compute_instance_template.vault_public.*.self_link, google_compute_instance_template.vault_private.*.self_link), 0)}"
 }
-
