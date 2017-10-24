@@ -291,8 +291,8 @@ Consul server cluster to be deployed as a high availability backend.
 
 ### Firewall Rules
 
-Network access to the Vault Compute Instances is governed by any VPC-levle Firewall Rules, but in addition, this module
-creates Firewall Rules to explicitly permit:
+Network access to the Vault Compute Instances is governed by any VPC-level Firewall Rules, but in addition, this module
+creates Firewall Rules to explicitly:
  
 * Allow Vault API requests within the cluster 
 * Allow inbound API requests from the desired tags or CIDR blocks
@@ -347,7 +347,7 @@ from the public Internet. But running private nodes creates a few gotchas:
   enables a Subnet property where you can [access Google APIs from within the network](
   https://cloud.google.com/compute/docs/private-google-access/configure-private-google-access) and not over the public
   Internet. **Setting this property is outside the scope of this module, but private Vault servers will not work unless
-  this is enabled.**
+  this is enabled, or they have public Internet access.**
 
 - **SSHing to private Compute Instances.** When a Compute Instance is private, you can only SSH into it from within the
   network. This module does not give you any direct way to SSH to the private Compute Instances, so you must separately
@@ -378,8 +378,11 @@ Vault uses TLS to encrypt its network traffic. For instructions on configuring T
 
 Vault servers keep everything in memory and do not write any data to the local hard disk. To persist data, Vault
 encrypts it, and sends it off to its storage backends, so no matter how the backend stores that data, it is already
-encrypted. By default, this Module uses GCS as a storage backend.
-
+encrypted. Even so, by default, [GCE encrypts all data at rest](
+https://cloud.google.com/compute/docs/disks/customer-supplied-encryption), a process managed by GCE without any
+additional actions needed on your part. You can also provide your own encryption keys and GCE will use these to protect
+the Google-generated keys used to encrypt and decrypt your on-disk data. By default, this Module uses GCS as a storage
+backend.
 
 
 ### Firewall Rules
@@ -411,6 +414,7 @@ This module does NOT handle the following items, which you may want to provide o
 * [Consul](#consul)
 * [Monitoring, alerting, log aggregation](#monitoring-alerting-log-aggregation)
 * [VPCs, subnets, route tables](#vpcs-subnets-route-tables)
+* [DNS entries](#dns-entries)
 
 
 ### Consul
@@ -444,9 +448,9 @@ the `startup_script` property.
 
 This module assumes you've already created your network topology (VPC, subnetworks, route tables, etc). By default,
 it will use the "default" network for the Project you select, but you may specify custom networks via the `network_name`
-property.
+property, or just use the default network topology created by GCP.
 
 
 ### DNS entries
 
-This module does not create any DNS entries for Consul (e.g. with Cloud DNS).
+This module does not create any DNS entries for Vault (e.g. with Cloud DNS).
